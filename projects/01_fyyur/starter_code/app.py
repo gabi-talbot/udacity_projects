@@ -2,6 +2,7 @@
 # Imports
 #----------------------------------------------------------------------------#
 import sys
+from datetime import datetime
 
 import dateutil.parser
 import babel
@@ -13,7 +14,7 @@ from logging import Formatter, FileHandler
 
 
 from forms import *
-from models import db, Venue
+from models import db, Venue, Show
 
 from flask_migrate import Migrate
 
@@ -108,18 +109,34 @@ def show_venue(venue_id):
   # TODO: replace with real venue data from the venues table, using venue_id
   selected_venue = Venue.query.get(venue_id)
   print(selected_venue)
+
+  # process genres string in to a list for view logic
   genres = selected_venue.genres.lstrip('{').rstrip('}').split(',')
 
+  # retrieve a list of show dictionaries using supplied venue id
+  shows = Show.query.filter_by(venue_id=venue_id).all()
 
-  past_shows =[{
-      "artist_id": 4,
-      "artist_name": "Guns N Petals",
-      "artist_image_link": "https://images.unsplash.com/photo-1549213783-8284d0336c4f?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=300&q=80",
-      "start_time": "2019-05-21T21:30:00.000Z"
-    }]
+  # split into past shows and upcoming based on today's date
+  past_shows = []
   upcoming_shows = []
-  past_shows_count = 1
-  upcoming_shows_count = 0
+  now = datetime.now()
+  for show in shows:
+    datetime_object = datetime.strptime(show.start_date, '%Y-%m-%dT%H:%M:%S.%f')
+    if datetime_object < now:
+      past_shows.append(show)
+    upcoming_shows.append(show)
+
+  # past_shows =[{
+  #     "artist_id": 4,
+  #     "artist_name": "Guns N Petals",
+  #     "artist_image_link": "https://images.unsplash.com/photo-1549213783-8284d0336c4f?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=300&q=80",
+  #     "start_time": "2019-05-21T21:30:00.000Z"
+  #   }]
+  # upcoming_shows = []
+  past_shows_count = len(past_shows)
+  upcoming_shows_count = len(upcoming_shows)
+
+
   if not selected_venue:
     abort(404)
   else:
@@ -231,7 +248,7 @@ def create_venue_form():
 
 @app.route('/venues/create', methods=['POST'])
 def create_venue_submission():
-  # TODO: insert form data as a new Venue record in the db, instead
+  # COMPLETED: insert form data as a new Venue record in the db, instead
   form = VenueForm(request.form)
   error = False
 
