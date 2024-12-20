@@ -13,7 +13,7 @@ import logging
 from logging import Formatter, FileHandler
 
 from forms import *
-from models import db, Venue, Show
+from models import db, Venue, Show, Artist
 
 from flask_migrate import Migrate
 
@@ -138,7 +138,7 @@ def search_venues():
 
 @app.route('/venues/<int:venue_id>')
 def show_venue(venue_id):
-    # TODO: replace with real venue data from the venues table, using venue_id
+    # COMPLETED: replace with real venue data from the venues table, using venue_id
     selected_venue = Venue.query.get(venue_id)
 
     if selected_venue is None:
@@ -332,17 +332,18 @@ def delete_venue(venue_id):
 #  ----------------------------------------------------------------
 @app.route('/artists')
 def artists():
-    # TODO: replace with real data returned from querying the database
-    data = [{
-        "id": 4,
-        "name": "Guns N Petals",
-    }, {
-        "id": 5,
-        "name": "Matt Quevedo",
-    }, {
-        "id": 6,
-        "name": "The Wild Sax Band",
-    }]
+    # COMPLETED: replace with real data returned from querying the database
+    # Query db for a list of all Artist objects
+    artists = Artist.query.all()
+    data = []
+
+    # Loop through query and append id and name to data
+    for artist in artists:
+        artist_data = {}
+        artist_data["id"] = artist.id
+        artist_data["name"] = artist.name
+        data.append(artist_data)
+
     return render_template('pages/artists.html', artists=data)
 
 
@@ -366,79 +367,123 @@ def search_artists():
 @app.route('/artists/<int:artist_id>')
 def show_artist(artist_id):
     # shows the artist page with the given artist_id
-    # TODO: replace with real artist data from the artist table, using artist_id
-    data1 = {
-        "id": 4,
-        "name": "Guns N Petals",
-        "genres": ["Rock n Roll"],
-        "city": "San Francisco",
-        "state": "CA",
-        "phone": "326-123-5000",
-        "website": "https://www.gunsnpetalsband.com",
-        "facebook_link": "https://www.facebook.com/GunsNPetals",
-        "seeking_venue": True,
-        "seeking_description": "Looking for shows to perform at in the San Francisco Bay Area!",
-        "image_link": "https://images.unsplash.com/photo-1549213783-8284d0336c4f?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=300&q=80",
-        "past_shows": [{
-            "venue_id": 1,
-            "venue_name": "The Musical Hop",
-            "venue_image_link": "https://images.unsplash.com/photo-1543900694-133f37abaaa5?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=400&q=60",
-            "start_time": "2019-05-21T21:30:00.000Z"
-        }],
-        "upcoming_shows": [],
-        "past_shows_count": 1,
-        "upcoming_shows_count": 0,
-    }
-    data2 = {
-        "id": 5,
-        "name": "Matt Quevedo",
-        "genres": ["Jazz"],
-        "city": "New York",
-        "state": "NY",
-        "phone": "300-400-5000",
-        "facebook_link": "https://www.facebook.com/mattquevedo923251523",
-        "seeking_venue": False,
-        "image_link": "https://images.unsplash.com/photo-1495223153807-b916f75de8c5?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=334&q=80",
-        "past_shows": [{
-            "venue_id": 3,
-            "venue_name": "Park Square Live Music & Coffee",
-            "venue_image_link": "https://images.unsplash.com/photo-1485686531765-ba63b07845a7?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=747&q=80",
-            "start_time": "2019-06-15T23:00:00.000Z"
-        }],
-        "upcoming_shows": [],
-        "past_shows_count": 1,
-        "upcoming_shows_count": 0,
-    }
-    data3 = {
-        "id": 6,
-        "name": "The Wild Sax Band",
-        "genres": ["Jazz", "Classical"],
-        "city": "San Francisco",
-        "state": "CA",
-        "phone": "432-325-5432",
-        "seeking_venue": False,
-        "image_link": "https://images.unsplash.com/photo-1558369981-f9ca78462e61?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=794&q=80",
-        "past_shows": [],
-        "upcoming_shows": [{
-            "venue_id": 3,
-            "venue_name": "Park Square Live Music & Coffee",
-            "venue_image_link": "https://images.unsplash.com/photo-1485686531765-ba63b07845a7?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=747&q=80",
-            "start_time": "2035-04-01T20:00:00.000Z"
-        }, {
-            "venue_id": 3,
-            "venue_name": "Park Square Live Music & Coffee",
-            "venue_image_link": "https://images.unsplash.com/photo-1485686531765-ba63b07845a7?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=747&q=80",
-            "start_time": "2035-04-08T20:00:00.000Z"
-        }, {
-            "venue_id": 3,
-            "venue_name": "Park Square Live Music & Coffee",
-            "venue_image_link": "https://images.unsplash.com/photo-1485686531765-ba63b07845a7?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=747&q=80",
-            "start_time": "2035-04-15T20:00:00.000Z"
-        }],
-        "past_shows_count": 0,
-        "upcoming_shows_count": 3,
-    }
-    data = list(filter(lambda d: d['id'] == artist_id, [data1, data2, data3]))[0]
+    # COMPLETED: replace with real artist data from the artist table, using artist_id
+    selected_artist = Artist.query.get(artist_id)
+
+    if selected_artist is None:
+        abort(404)
+    # TODO: tidy up logic and check shows display correctly (date grab may be wrong format)
+    else:
+        # process genres string in to a list for view logic
+        genres = selected_artist.genres.lstrip('{').rstrip('}').split(',')
+
+        # retrieve a list of show dictionaries using supplied venue id
+        shows = Show.query.filter_by(artist_id=artist_id).all()
+
+        # split into past shows and upcoming based on today's date and time
+        past_shows = []
+        upcoming_shows = []
+        now = datetime.now()
+        for show in shows:
+            datetime_object = datetime.strptime(show.start_date, '%Y-%m-%dT%H:%M:%S.%f')
+            if datetime_object < now:
+                past_shows.append(show)
+            upcoming_shows.append(show)
+
+        # upcoming_shows = []
+        past_shows_count = len(past_shows)
+        upcoming_shows_count = len(upcoming_shows)
+
+        data = {
+            "id": selected_artist.id,
+            "name": selected_artist.name,
+            "city": selected_artist.city,
+            "state": selected_artist.state,
+            "phone": selected_artist.phone,
+            "image_link": selected_artist.image_link,
+            "genres": genres,
+            "facebook_link": selected_artist.facebook_link,
+            "website": selected_artist.website_link,
+            "seeking_venue": selected_artist.seeking_venue,
+            "seeking_description": selected_artist.seeking_description,
+            "past_shows": past_shows,
+            "upcoming_shows": upcoming_shows,
+            "past_shows_count": past_shows_count,
+            "upcoming_shows_count": upcoming_shows_count
+        }
+
+    # data1 = {
+    #     "id": 4,
+    #     "name": "Guns N Petals",
+    #     "genres": ["Rock n Roll"],
+    #     "city": "San Francisco",
+    #     "state": "CA",
+    #     "phone": "326-123-5000",
+    #     "website": "https://www.gunsnpetalsband.com",
+    #     "facebook_link": "https://www.facebook.com/GunsNPetals",
+    #     "seeking_venue": True,
+    #     "seeking_description": "Looking for shows to perform at in the San Francisco Bay Area!",
+    #     "image_link": "https://images.unsplash.com/photo-1549213783-8284d0336c4f?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=300&q=80",
+    #     "past_shows": [{
+    #         "venue_id": 1,
+    #         "venue_name": "The Musical Hop",
+    #         "venue_image_link": "https://images.unsplash.com/photo-1543900694-133f37abaaa5?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=400&q=60",
+    #         "start_time": "2019-05-21T21:30:00.000Z"
+    #     }],
+    #     "upcoming_shows": [],
+    #     "past_shows_count": 1,
+    #     "upcoming_shows_count": 0,
+    # }
+    # data2 = {
+    #     "id": 5,
+    #     "name": "Matt Quevedo",
+    #     "genres": ["Jazz"],
+    #     "city": "New York",
+    #     "state": "NY",
+    #     "phone": "300-400-5000",
+    #     "facebook_link": "https://www.facebook.com/mattquevedo923251523",
+    #     "seeking_venue": False,
+    #     "image_link": "https://images.unsplash.com/photo-1495223153807-b916f75de8c5?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=334&q=80",
+    #     "past_shows": [{
+    #         "venue_id": 3,
+    #         "venue_name": "Park Square Live Music & Coffee",
+    #         "venue_image_link": "https://images.unsplash.com/photo-1485686531765-ba63b07845a7?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=747&q=80",
+    #         "start_time": "2019-06-15T23:00:00.000Z"
+    #     }],
+    #     "upcoming_shows": [],
+    #     "past_shows_count": 1,
+    #     "upcoming_shows_count": 0,
+    # }
+    # data3 = {
+    #     "id": 6,
+    #     "name": "The Wild Sax Band",
+    #     "genres": ["Jazz", "Classical"],
+    #     "city": "San Francisco",
+    #     "state": "CA",
+    #     "phone": "432-325-5432",
+    #     "seeking_venue": False,
+    #     "image_link": "https://images.unsplash.com/photo-1558369981-f9ca78462e61?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=794&q=80",
+    #     "past_shows": [],
+    #     "upcoming_shows": [{
+    #         "venue_id": 3,
+    #         "venue_name": "Park Square Live Music & Coffee",
+    #         "venue_image_link": "https://images.unsplash.com/photo-1485686531765-ba63b07845a7?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=747&q=80",
+    #         "start_time": "2035-04-01T20:00:00.000Z"
+    #     }, {
+    #         "venue_id": 3,
+    #         "venue_name": "Park Square Live Music & Coffee",
+    #         "venue_image_link": "https://images.unsplash.com/photo-1485686531765-ba63b07845a7?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=747&q=80",
+    #         "start_time": "2035-04-08T20:00:00.000Z"
+    #     }, {
+    #         "venue_id": 3,
+    #         "venue_name": "Park Square Live Music & Coffee",
+    #         "venue_image_link": "https://images.unsplash.com/photo-1485686531765-ba63b07845a7?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=747&q=80",
+    #         "start_time": "2035-04-15T20:00:00.000Z"
+    #     }],
+    #     "past_shows_count": 0,
+    #     "upcoming_shows_count": 3,
+    # }
+    # data = list(filter(lambda d: d['id'] == artist_id, [data1, data2, data3]))[0]
     return render_template('pages/show_artist.html', artist=data)
 
 
@@ -506,20 +551,53 @@ def edit_venue_submission(venue_id):
 @app.route('/artists/create', methods=['GET'])
 def create_artist_form():
     form = ArtistForm()
+
     return render_template('forms/new_artist.html', form=form)
 
 
 @app.route('/artists/create', methods=['POST'])
 def create_artist_submission():
     # called upon submitting the new artist listing form
-    # TODO: insert form data as a new Venue record in the db, instead
-    # TODO: modify data to be the data object returned from db insertion
+    # COMPLETED: insert form data as a new Venue record in the db, instead
+    form = ArtistForm(request.form)
+    error = False
 
-    # on successful db insert, flash success
-    flash('Artist ' + request.form['name'] + ' was successfully listed!')
-    # TODO: on unsuccessful db insert, flash an error instead.
-    # e.g., flash('An error occurred. Artist ' + data.name + ' could not be listed.')
-    return render_template('pages/home.html')
+    try:
+        name = form.name.data
+        city = form.city.data
+        state = form.state.data
+        phone = form.phone.data
+        genres = form.genres.data
+        facebook_link = form.facebook_link.data
+        image_link = form.image_link.data
+        website_link = form.website_link.data
+        seeking_venue = form.seeking_venue.data
+        seeking_description = form.seeking_description.data
+
+        new_artist = Artist(
+            name=name, city=city, state=state, phone=phone,
+            image_link=image_link, genres=genres, facebook_link=facebook_link,
+            website_link=website_link, seeking_venue=seeking_venue,
+            seeking_description=seeking_description
+        )
+        # Create Artist object and commit to database
+        db.session.add(new_artist)
+        db.session.commit()
+        # on successful db insert, flash success
+        # TODO: modify data to be the data object returned from db insertion
+        flash('Artist ' + form.name.data + ' was successfully listed!')
+    except:
+        error = True
+        print(sys.exc_info())
+        db.session.rollback()
+    finally:
+        db.session.close()
+        if error:
+            # COMPLETED: on unsuccessful db insert, flash an error instead.
+            # see: http://flask.pocoo.org/docs/1.0/patterns/flashing/
+            flash('An error occurred. Artist ' + form.name.data + ' could not be listed.')
+        else:
+            return render_template('pages/home.html')
 
 
 #  Shows
