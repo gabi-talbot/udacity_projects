@@ -50,11 +50,12 @@ class Artist(db.Model):
 class Show(db.Model):
     __tablename__ = 'show'
     __table_args__ = (
-      PrimaryKeyConstraint('venue_id', 'artist_id'),
+        PrimaryKeyConstraint('venue_id', 'artist_id', 'start_time'),
     )
+    # all three columns form composite so an artist can have a show at a venue more than once.
     venue_id = db.Column(db.Integer, db.ForeignKey('venue.id'), primary_key=True)
     artist_id = db.Column( db.Integer, db.ForeignKey('artist.id'), primary_key=True)
-    start_time = db.Column(db.DateTime, nullable=False)
+    start_time = db.Column(db.DateTime, primary_key=True)
 
     def __repr__(self):
         return f'<Show {self.venue_id} {self.artist_id} {self.start_time}>'
