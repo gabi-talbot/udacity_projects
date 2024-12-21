@@ -156,7 +156,7 @@ def show_venue(venue_id):
         upcoming_shows = []
         now = datetime.now()
         for show in shows:
-            datetime_object = datetime.strptime(show.start_date, '%Y-%m-%dT%H:%M:%S.%f')
+            datetime_object = datetime.strptime(show.start_time, '%Y-%m-%dT%H:%M:%S')
             if datetime_object < now:
                 past_shows.append(show)
             upcoming_shows.append(show)
@@ -385,8 +385,9 @@ def show_artist(artist_id):
         upcoming_shows = []
         now = datetime.now()
         for show in shows:
-            datetime_object = datetime.strptime(show.start_date, '%Y-%m-%dT%H:%M:%S.%f')
-            if datetime_object < now:
+            print(show.start_time)
+            # datetime_object = datetime.strptime(show.start_time, '%Y-%m-%dT%H:%M:%S.%f')
+            if show.start_time < now:
                 past_shows.append(show)
             upcoming_shows.append(show)
 
@@ -607,6 +608,17 @@ def create_artist_submission():
 def shows():
     # displays list of shows at /shows
     # TODO: replace with real venues data.
+
+    # is this right?
+    shows = Show.query.join("venue").join("artist").all()
+
+
+    data = []
+    for show in shows:
+        formatted_show = {}
+        formatted_show["venue_id"] = show.venue_id
+
+
     data = [{
         "venue_id": 1,
         "venue_name": "The Musical Hop",
@@ -656,7 +668,7 @@ def create_shows():
 @app.route('/shows/create', methods=['POST'])
 def create_show_submission():
     # called to create new shows in the db, upon submitting new show listing form
-    # TODO: insert form data as a new Show record in the db, instead
+    # COMPLETED: insert form data as a new Show record in the db, instead
     form = ShowForm(request.form)
 
     try:
@@ -675,7 +687,7 @@ def create_show_submission():
     except:
         print(sys.exc_info())
         db.session.rollback()
-        # TODO: on unsuccessful db insert, flash an error instead.
+        # COMPLETED: on unsuccessful db insert, flash an error instead.
         flash('An error occurred. Show could not be listed.')
     finally:
         db.session.close()

@@ -55,7 +55,7 @@ class Show(db.Model):
     # all three columns form composite so an artist can have a show at a venue more than once.
     venue_id = db.Column(db.Integer, db.ForeignKey('venue.id'), primary_key=True)
     artist_id = db.Column( db.Integer, db.ForeignKey('artist.id'), primary_key=True)
-    start_time = db.Column(db.DateTime, primary_key=True)
+    start_time = db.Column(db.String, primary_key=True)
 
     def __repr__(self):
         return f'<Show {self.venue_id} {self.artist_id} {self.start_time}>'
